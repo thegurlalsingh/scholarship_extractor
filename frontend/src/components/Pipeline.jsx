@@ -69,7 +69,7 @@ export default function Pipeline() {
   const checkRunningStatuses = async () => {
     try {
       // Check Recheck status
-      const recheckRes = await fetch('http://localhost:8000/recheck/status');
+      const recheckRes = await fetch('https://scholarship-extractor.onrender.com/recheck/status');
       if (recheckRes.ok) {
         const status = await recheckRes.json();
         setRecheckStatus({
@@ -79,7 +79,7 @@ export default function Pipeline() {
       }
 
       // Check Crawl/Orchestrator status
-      const crawlRes = await fetch('http://localhost:8000/orchestrator/status');
+      const crawlRes = await fetch('https://scholarship-extractor.onrender.com/orchestrator/status');
       if (crawlRes.ok) {
         const status = await crawlRes.json();
         setCrawlStatus({
@@ -108,7 +108,7 @@ export default function Pipeline() {
 
     try {
       setRecheckStatus({ running: true, message: 'Initiating recheck...' });
-      const res = await fetch('http://localhost:8000/recheck/manual', {
+      const res = await fetch('https://scholarship-extractor.onrender.com/recheck/manual', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ batch_size: 25, stale_after_hours: 24 })
@@ -134,7 +134,7 @@ export default function Pipeline() {
 
     try {
       setCrawlStatus({ running: true, message: 'Initiating discovery crawl...' });
-      const res = await fetch('http://localhost:8000/orchestrator/manual', {
+      const res = await fetch('https://scholarship-extractor.onrender.com/orchestrator/manual', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ max_domains: 5, max_depth: 2, max_pages: 15 })
