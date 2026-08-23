@@ -1,0 +1,22 @@
+# render.yaml
+#
+# The mediator needs to be reachable at any time (Supabase's pg_cron
+# calls it on its own schedule), so this is a Web Service, not a
+# `type: cron` job - Render itself no longer owns any scheduling here.
+
+services:
+  - type: web
+    name: scholarship-recheck-mediator
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    envVars:
+      - key: RECHECK_API_TOKEN
+        sync: false        # must match the secret stored in Supabase Vault
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false

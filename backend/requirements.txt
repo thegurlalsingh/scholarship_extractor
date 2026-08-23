@@ -1,0 +1,8 @@
+fastapi
+pydantic
+uvicorn[standard]
+python-dotenv
+requests
+beautifulsoup4
+supabase
+ddgs
