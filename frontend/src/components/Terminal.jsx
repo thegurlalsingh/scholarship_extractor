@@ -17,7 +17,7 @@ export default function Terminal() {
     }
 
     setStatus('connecting');
-    const es = new EventSource('http://localhost:8000/logs/stream');
+    const es = new EventSource('https://scholarship-extractor.onrender.com/logs/stream');
     eventSourceRef.current = es;
 
     es.onopen = () => {
