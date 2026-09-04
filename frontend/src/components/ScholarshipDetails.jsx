@@ -71,7 +71,8 @@ export default function ScholarshipDetails() {
     );
   }
 
-  const monitoring = scholarship.scholarship_monitoring?.[0] || {};
+  const mon = Array.isArray(scholarship.scholarship_monitoring) ? scholarship.scholarship_monitoring[0] : scholarship.scholarship_monitoring;
+  const monitoring = mon || {};
   const validation = scholarship.scholarship_validations?.[0] || {};
   const changes = scholarship.scholarship_changes || [];
   const urgency = getDeadlineUrgency(scholarship.application_end);
