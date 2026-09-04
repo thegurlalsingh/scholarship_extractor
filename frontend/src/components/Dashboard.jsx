@@ -111,7 +111,8 @@ export default function Dashboard() {
     }
 
     const hasAttentionNeeded = scholarships.some((s) => {
-      const failures = s.scholarship_monitoring?.[0]?.consecutive_failures || 0;
+      const mon = Array.isArray(s.scholarship_monitoring) ? s.scholarship_monitoring[0] : s.scholarship_monitoring;
+      const failures = mon?.consecutive_failures || 0;
       return failures >= 3;
     });
 
@@ -120,7 +121,8 @@ export default function Dashboard() {
     }
 
     const hasSomeFailures = scholarships.some((s) => {
-      const failures = s.scholarship_monitoring?.[0]?.consecutive_failures || 0;
+      const mon = Array.isArray(s.scholarship_monitoring) ? s.scholarship_monitoring[0] : s.scholarship_monitoring;
+      const failures = mon?.consecutive_failures || 0;
       return failures > 0;
     });
 
