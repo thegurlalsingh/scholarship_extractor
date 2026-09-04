@@ -54,10 +54,11 @@ export default function Monitoring() {
     return () => clearInterval(interval);
   }, []);
 
-  // Compute values
   const monitoringRows = React.useMemo(() => {
     return data.map((s) => {
-      const mon = s.scholarship_monitoring?.[0] || {};
+      const mon = Array.isArray(s.scholarship_monitoring)
+        ? s.scholarship_monitoring[0]
+        : (s.scholarship_monitoring || {});
       return {
         id: s.id,
         title: s.title,
