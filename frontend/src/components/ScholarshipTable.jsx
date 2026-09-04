@@ -149,8 +149,10 @@ export default function ScholarshipTable({ scholarships, isLoading }) {
         aVal = a.application_end ? new Date(a.application_end) : new Date('2099-12-31');
         bVal = b.application_end ? new Date(b.application_end) : new Date('2099-12-31');
       } else if (sortBy === 'last_checked') {
-        aVal = a.scholarship_monitoring?.[0]?.last_checked_at ? new Date(a.scholarship_monitoring[0].last_checked_at) : new Date(0);
-        bVal = b.scholarship_monitoring?.[0]?.last_checked_at ? new Date(b.scholarship_monitoring[0].last_checked_at) : new Date(0);
+        const monA = Array.isArray(a.scholarship_monitoring) ? a.scholarship_monitoring[0] : a.scholarship_monitoring;
+        const monB = Array.isArray(b.scholarship_monitoring) ? b.scholarship_monitoring[0] : b.scholarship_monitoring;
+        aVal = monA?.last_checked_at ? new Date(monA.last_checked_at) : new Date(0);
+        bVal = monB?.last_checked_at ? new Date(monB.last_checked_at) : new Date(0);
       } else if (sortBy === 'score') {
         aVal = a.scholarship_validations?.[0]?.legitimacy_score || 0;
         bVal = b.scholarship_validations?.[0]?.legitimacy_score || 0;
@@ -330,7 +332,8 @@ export default function ScholarshipTable({ scholarships, isLoading }) {
                 const urgency = getDeadlineUrgency(s.application_end);
                 const valInfo = getValidationBadge(s.scholarship_validations?.[0]?.status);
                 const ValIcon = valInfo.icon;
-                const lastCheckedAt = s.scholarship_monitoring?.[0]?.last_checked_at;
+                const mon = Array.isArray(s.scholarship_monitoring) ? s.scholarship_monitoring[0] : s.scholarship_monitoring;
+                const lastCheckedAt = mon?.last_checked_at;
                 const hasChanges = s.scholarship_changes && s.scholarship_changes.length > 0;
 
                 return (
