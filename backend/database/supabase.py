@@ -482,12 +482,13 @@ class SupabaseStore:
                 "id", scholarship_id
             ).execute()
 
-        self.client.table("scholarship_monitoring").update({
+        self.client.table("scholarship_monitoring").upsert({
+            "scholarship_id": scholarship_id,
             "last_checked_at": now,
             "is_active": is_active,
             "consecutive_failures": consecutive_failures,
             "updated_at": now,
-        }).eq("scholarship_id", scholarship_id).execute()
+        }, on_conflict="scholarship_id").execute()
 
     def insert_scholarship_changes(self, changes: List[dict]) -> None:
         """
