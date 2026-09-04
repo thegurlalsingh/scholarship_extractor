@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Cpu, Play, CheckCircle, Clock, AlertCircle, RefreshCw } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function Pipeline() {
   const [latestDiscovery, setLatestDiscovery] = useState(null);
@@ -69,7 +70,7 @@ export default function Pipeline() {
   const checkRunningStatuses = async () => {
     try {
       // Check Recheck status
-      const recheckRes = await fetch('https://scholarship-extractor.onrender.com/recheck/status');
+      const recheckRes = await fetch(`${API_BASE_URL}/recheck/status`);
       if (recheckRes.ok) {
         const status = await recheckRes.json();
         setRecheckStatus({
@@ -79,7 +80,7 @@ export default function Pipeline() {
       }
 
       // Check Crawl/Orchestrator status
-      const crawlRes = await fetch('https://scholarship-extractor.onrender.com/orchestrator/status');
+      const crawlRes = await fetch(`${API_BASE_URL}/orchestrator/status`);
       if (crawlRes.ok) {
         const status = await crawlRes.json();
         setCrawlStatus({
@@ -108,7 +109,7 @@ export default function Pipeline() {
 
     try {
       setRecheckStatus({ running: true, message: 'Initiating recheck...' });
-      const res = await fetch('https://scholarship-extractor.onrender.com/recheck/manual', {
+      const res = await fetch(`${API_BASE_URL}/recheck/manual`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ batch_size: 25, stale_after_hours: 24 })
@@ -134,7 +135,7 @@ export default function Pipeline() {
 
     try {
       setCrawlStatus({ running: true, message: 'Initiating discovery crawl...' });
-      const res = await fetch('https://scholarship-extractor.onrender.com/orchestrator/manual', {
+      const res = await fetch(`${API_BASE_URL}/orchestrator/manual`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ max_domains: 5, max_depth: 2, max_pages: 15 })
@@ -154,13 +155,13 @@ export default function Pipeline() {
 
   // Build list of stages for visual flowchart
   const stages = [
-    { name: 'Discovery', desc: 'Find candidate domains', status: crawlStatus.running ? 'RUNNING' : (latestDiscovery?.status || 'COMPLETED'), icon: '🔍' },
-    { name: 'Crawling', desc: 'Scrape listing index pages', status: crawlStatus.running ? 'RUNNING' : (latestCrawl?.status || 'COMPLETED'), icon: '🕷️' },
+    { name: 'Discovery', desc: 'Find candidate domains', status: crawlStatus.running ? 'RUNNING' : (latestDiscovery ? (latestDiscovery.status || 'COMPLETED') : 'PENDING'), icon: '🔍' },
+    { name: 'Crawling', desc: 'Scrape listing index pages', status: crawlStatus.running ? 'RUNNING' : (latestCrawl ? (latestCrawl.status || 'COMPLETED') : 'PENDING'), icon: '🕷️' },
     { name: 'Extraction', desc: 'Deterministic card mapping', status: crawlStatus.running ? 'RUNNING' : (latestCrawl ? 'COMPLETED' : 'PENDING'), icon: '📄' },
     { name: 'Validation', desc: 'Legitimacy & dates checks', status: crawlStatus.running ? 'RUNNING' : (latestCrawl ? 'COMPLETED' : 'PENDING'), icon: '🛡️' },
     { name: 'Database', desc: 'Write relational Supabase data', status: crawlStatus.running ? 'RUNNING' : (latestCrawl ? 'COMPLETED' : 'PENDING'), icon: '💾' },
-    { name: 'Monitoring', desc: 'Scheduling & failure triggers', status: recheckStatus.running ? 'RUNNING' : 'COMPLETED', icon: '⏰' },
-    { name: 'Recheck', desc: 'Verify field drift / liveness', status: recheckStatus.running ? 'RUNNING' : (latestRecheck?.status || 'COMPLETED'), icon: '🔄' },
+    { name: 'Monitoring', desc: 'Scheduling & failure triggers', status: recheckStatus.running ? 'RUNNING' : (latestRecheck ? 'COMPLETED' : 'PENDING'), icon: '⏰' },
+    { name: 'Recheck', desc: 'Verify field drift / liveness', status: recheckStatus.running ? 'RUNNING' : (latestRecheck ? (latestRecheck.status || 'COMPLETED') : 'PENDING'), icon: '🔄' },
   ];
 
   return (

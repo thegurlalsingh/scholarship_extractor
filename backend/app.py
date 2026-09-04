@@ -239,11 +239,22 @@ def stream_logs():
     Server-Sent Events (SSE) endpoint to stream backend execution logs to the frontend terminal.
     """
     async def event_generator():
+        yield "data: [SYSTEM] Connected to backend live log stream.\n\n"
         last_index = max(0, len(log_queue) - 50) # send last 50 logs as context
         while True:
             if last_index < len(log_queue):
                 while last_index < len(log_queue):
                     yield f"data: {log_queue[last_index]}\n\n"
                     last_index += 1
+            else:
+                yield ": heartbeat\n\n"
             await asyncio.sleep(0.5)
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        }
+    )

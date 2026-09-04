@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Terminal as TerminalIcon, Trash2, Pause, Play, Search, AlertCircle, Wifi, WifiOff } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function Terminal() {
   const [logs, setLogs] = useState([]);
@@ -17,7 +18,7 @@ export default function Terminal() {
     }
 
     setStatus('connecting');
-    const es = new EventSource('https://scholarship-extractor.onrender.com/logs/stream');
+    const es = new EventSource(`${API_BASE_URL}/logs/stream`);
     eventSourceRef.current = es;
 
     es.onopen = () => {
@@ -176,7 +177,7 @@ export default function Terminal() {
                   isStage ? 'text-indigo-400 font-bold border-y border-slate-900/60 py-1 my-1.5' :
                   isError ? 'text-rose-400' :
                   isSuccess ? 'text-emerald-400' :
-                  'text-slate-350'
+                  'text-white'
                 }`}>
                   {log}
                 </div>

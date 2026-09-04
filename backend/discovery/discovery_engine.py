@@ -28,12 +28,15 @@ class DiscoveryEngine:
         self.candidate_classifier = candidate_classifier
 
     def discover(self) -> List[ScholarshipCandidate]:
+        import time
+
         candidates: List[ScholarshipCandidate] = []
         seen_urls: Set[str] = set()
 
         for strategy in DISCOVERY_STRATEGIES:
             for query in strategy.queries:
                 results = self.search_provider.search(query)
+                time.sleep(1.0)  # Rate limit pause for web search engine
 
                 for result in results:
                     url = result.get("url")

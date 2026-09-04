@@ -36,7 +36,7 @@ class WebSearchProvider(SearchProvider):
         region: str = "in-en",
         safesearch: str = "moderate",
         timeout: int = 10,
-        backend: str = "duckduckgo,brave,startpage,mojeek,yahoo",
+        backend: str = "duckduckgo,brave,startpage",
     ):
         self.max_results = max_results
         self.region = region
@@ -49,49 +49,56 @@ class WebSearchProvider(SearchProvider):
         )
 
     def search(self, query: str) -> List[Dict[str, Any]]:
+        import time
 
         if not query or not query.strip():
             return []
 
-        try:
+        # Try multiple search configurations to bypass rate limits
+        attempts = [
+            {"backend": self.backend, "query": query},
+            {"backend": "auto", "query": query},
+        ]
 
-            raw_results = self.client.text(
-                query=query,
-                region=self.region,
-                safesearch=self.safesearch,
-                backend=self.backend,
-                max_results=self.max_results,
-            )
+        # If query has a site: dork, add a non-dork fallback
+        if "site:" in query:
+            clean_q = " ".join([w for w in query.split() if not w.startswith("site:")])
+            attempts.append({"backend": "auto", "query": clean_q})
 
-            results = []
+        for i, attempt in enumerate(attempts):
+            try:
+                with DDGS(timeout=self.timeout) as client:
+                    raw_results = client.text(
+                        query=attempt["query"],
+                        region=self.region,
+                        safesearch=self.safesearch,
+                        backend=attempt["backend"],
+                        max_results=self.max_results,
+                    )
 
-            for item in raw_results:
+                results = []
+                for item in raw_results:
+                    results.append(
+                        {
+                            "title": item.get("title", ""),
+                            "url": item.get("href", ""),
+                            "snippet": item.get("body", ""),
+                        }
+                    )
 
-                results.append(
-                    {
-                        "title": item.get("title", ""),
-                        "url": item.get("href", ""),
-                        "snippet": item.get("body", ""),
-                    }
-                )
+                if results:
+                    print(
+                        f"[WebSearchProvider] '{query}' → {len(results)} results"
+                    )
+                    return results
 
-            print(
-                f"[WebSearchProvider] "
-                f"'{query}' → {len(results)} results"
-            )
+            except Exception as exc:
+                if i < len(attempts) - 1:
+                    time.sleep(1.2)  # Pause before retry to avoid rate limits
+                else:
+                    print(f"[WebSearchProvider] Search failed for '{query}' | Reason: {exc}")
 
-            return results
-
-        except Exception as exc:
-
-            print(
-                f"[WebSearchProvider] "
-                f"Search failed for '{query}'"
-            )
-
-            print(f"Reason: {exc}")
-
-            return []
+        return []
 
 
 # Backwards-compatible alias so existing imports don't break.
