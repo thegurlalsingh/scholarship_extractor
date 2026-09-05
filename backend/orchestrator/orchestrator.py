@@ -424,7 +424,7 @@ def export_json(validated: List[dict], dropped: List[dict], output_path: str) ->
 
 def run_pipeline(
     start_url: Optional[str] = None,
-    max_domains: int = 5,
+    max_domains: int = 40,
     max_depth: int = 2,
     max_pages: int = 15,
     output: str = "scholarships_output.json",
@@ -534,7 +534,7 @@ def main():
     )
 
     parser.add_argument("--start-url", default=None, help="Skip discovery and crawl only this URL.")
-    parser.add_argument("--max-domains", type=int, default=5)
+    parser.add_argument("--max-domains", type=int, default=40)
     parser.add_argument("--max-depth", type=int, default=2)
     parser.add_argument("--max-pages", type=int, default=15)
     parser.add_argument("--output", default="scholarships_output.json")
