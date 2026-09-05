@@ -138,7 +138,7 @@ export default function Pipeline() {
       const res = await fetch(`${API_BASE_URL}/orchestrator/manual`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ max_domains: 5, max_depth: 2, max_pages: 15 })
+        body: JSON.stringify({ max_domains: 40, max_depth: 2, max_pages: 15 })
       });
 
       if (res.ok) {
