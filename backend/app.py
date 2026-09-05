@@ -156,7 +156,7 @@ def get_recheck_status():
 
 
 class OrchestratorRequest(BaseModel):
-    max_domains: int = Field(default=5, ge=1, le=50)
+    max_domains: int = Field(default=40, ge=1, le=50)
     max_depth: int = Field(default=2, ge=1, le=10)
     max_pages: int = Field(default=15, ge=1, le=100)
     start_url: Optional[str] = Field(default=None)
