@@ -69,7 +69,7 @@ select cron.schedule(
         ),
         body := jsonb_build_object(
             'batch_size', 25,
-            'stale_after_hours', 24,
+            'stale_after_hours', 6,
             'include_inactive', false
         ),
         timeout_milliseconds := 30000
@@ -106,7 +106,7 @@ select cron.schedule(
         ),
         body := jsonb_build_object(
             'batch_size', 15,
-            'stale_after_hours', 24,
+            'stale_after_hours', 6,
             'include_inactive', true
         ),
         timeout_milliseconds := 30000
