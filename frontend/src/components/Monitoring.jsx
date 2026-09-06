@@ -9,7 +9,7 @@ export default function Monitoring() {
   const [data, setData] = useState([]);
   const [latestRun, setLatestRun] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const STALE_THRESHOLD_HOURS = 24;
+  const STALE_THRESHOLD_HOURS = 6;
 
   const fetchData = async () => {
     try {
