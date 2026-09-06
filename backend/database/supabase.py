@@ -401,7 +401,7 @@ class SupabaseStore:
 
     def get_scholarships_due_for_recheck(
         self,
-        stale_after_hours: int = 24,
+        stale_after_hours: int = 6,
         only_active: bool = True,
         limit: int = 500,
     ) -> List[dict]:
