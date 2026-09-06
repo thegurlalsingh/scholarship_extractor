@@ -61,7 +61,7 @@ app.add_middleware(
 
 class RecheckRequest(BaseModel):
     batch_size: int = Field(default=25, ge=1, le=200)
-    stale_after_hours: int = Field(default=24, ge=1)
+    stale_after_hours: int = Field(default=6, ge=1)
     include_inactive: bool = False
 
 
