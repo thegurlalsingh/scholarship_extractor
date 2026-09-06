@@ -89,7 +89,7 @@ class RecheckService:
     def run(
         self,
         batch_size: int = 50,
-        stale_after_hours: int = 24,
+        stale_after_hours: int = 6,
         only_active: bool = True,
     ) -> Dict[str, Any]:
 
