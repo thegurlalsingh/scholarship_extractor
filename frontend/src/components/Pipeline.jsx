@@ -112,7 +112,7 @@ export default function Pipeline() {
       const res = await fetch(`${API_BASE_URL}/recheck/manual`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ batch_size: 25, stale_after_hours: 24 })
+        body: JSON.stringify({ batch_size: 25, stale_after_hours: 6 })
       });
 
       if (res.ok) {
