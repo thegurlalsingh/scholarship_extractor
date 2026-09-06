@@ -111,20 +111,26 @@ export default function Monitoring() {
   };
 
   const getNextRecheckTime = () => {
-    if (!latestRun?.completed_at) return 'Unknown';
-    try {
-      const lastCheck = new Date(latestRun.completed_at);
-      // Next recheck is scheduled 24 hours later
-      const nextCheck = new Date(lastCheck.getTime() + 24 * 60 * 60 * 1000);
-      return nextCheck.toLocaleString([], {
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch (e) {
-      return 'Unknown';
+    const checkedRows = monitoringRows.filter((r) => r.last_checked_at);
+    if (checkedRows.length === 0) return 'Next 30m Cron';
+
+    // Find the oldest last_checked_at timestamp among scholarships
+    const sorted = [...checkedRows].sort(
+      (a, b) => new Date(a.last_checked_at) - new Date(b.last_checked_at)
+    );
+    const oldestCheck = new Date(sorted[0].last_checked_at);
+    const nextDue = new Date(oldestCheck.getTime() + STALE_THRESHOLD_HOURS * 60 * 60 * 1000);
+
+    if (nextDue <= new Date()) {
+      return 'Next 30m Cron (Due Now)';
     }
+
+    return nextDue.toLocaleString([], {
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   return (
@@ -150,15 +156,15 @@ export default function Monitoring() {
             <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Last Recheck</span>
               <span className="text-sm font-bold text-slate-800 block mt-2">
-                {latestRun?.completed_at ? new Date(latestRun.completed_at).toLocaleDateString([], { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'Never'}
+                {latestRun?.completed_at ? new Date(latestRun.completed_at).toLocaleString([], { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'Never'}
               </span>
-              <p className="text-[10px] text-slate-400 mt-1.5 uppercase font-bold tracking-wider">Automated Cycle</p>
+              <p className="text-[10px] text-slate-400 mt-1.5 uppercase font-bold tracking-wider">30m Cron Execution</p>
             </div>
 
             <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Next Recheck</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Next Recheck Due</span>
               <span className="text-sm font-bold text-slate-850 block mt-2">{getNextRecheckTime()}</span>
-              <p className="text-[10px] text-slate-400 mt-1.5 uppercase font-bold tracking-wider">Scheduled Cron</p>
+              <p className="text-[10px] text-slate-400 mt-1.5 uppercase font-bold tracking-wider">Next Data Update Today</p>
             </div>
 
             <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
@@ -258,27 +264,24 @@ export default function Monitoring() {
                       </td>
                       <td className="px-6 py-3.5">
                         <div className="flex items-center gap-1.5 select-none">
-                          <span className={`w-2.5 h-2.5 rounded-full ${
-                            isAlert ? 'bg-rose-500 animate-pulse' :
-                            isWarn ? 'bg-amber-500' :
-                            row.is_active ? 'bg-emerald-500' : 'bg-slate-400'
-                          }`}></span>
-                          <span className={`text-xs font-bold uppercase ${
-                            isAlert ? 'text-rose-700' :
-                            isWarn ? 'text-amber-700' :
-                            row.is_active ? 'text-emerald-700' : 'text-slate-550'
-                          }`}>
+                          <span className={`w-2.5 h-2.5 rounded-full ${isAlert ? 'bg-rose-500 animate-pulse' :
+                              isWarn ? 'bg-amber-500' :
+                                row.is_active ? 'bg-emerald-500' : 'bg-slate-400'
+                            }`}></span>
+                          <span className={`text-xs font-bold uppercase ${isAlert ? 'text-rose-700' :
+                              isWarn ? 'text-amber-700' :
+                                row.is_active ? 'text-emerald-700' : 'text-slate-550'
+                            }`}>
                             {isAlert ? 'ATTENTION REQUIRED' :
-                             isWarn ? 'CHECK WARNING' :
-                             row.is_active ? 'HEALTHY' : 'INACTIVE'}
+                              isWarn ? 'CHECK WARNING' :
+                                row.is_active ? 'HEALTHY' : 'INACTIVE'}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-3.5">
                         {row.consecutive_failures > 0 ? (
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-bold font-mono ${
-                            row.consecutive_failures >= 3 ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
-                          }`}>
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-bold font-mono ${row.consecutive_failures >= 3 ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                            }`}>
                             {row.consecutive_failures} failures
                           </span>
                         ) : (
